@@ -1,0 +1,309 @@
+# ============================================================
+#  CONFIGURACIÓN DEL AGENTE DE PERFUMES  (es el ÚNICO archivo que tocarás)
+# ============================================================
+
+horarios: [420, 900]      # minutos desde medianoche (hora Madrid) en los que se puede enviar el informe.
+                          # 420 = 7:00 · 900 = 15:00. Añade o quita horas separadas por comas.
+                          # El agente tarda 20-30 min buscando, así que el informe llega un poco después de cada hora.
+presupuesto_alternativas: 70   # € máximo (precio total) para perfumes alternativos
+min_dias_historial: 14    # por debajo de esto el agente usa "modo arranque"
+
+impuestos:
+  iva: 0.21               # IVA español
+  arancel: 0.0            # arancel UE de perfumería (partida 3303): 0 %. VERIFÍCALO antes de fiarte
+  gestion_aduana: 0.0     # € fijos que cobra el transportista por gestionar aduana (DHL/UPS ~ 5-15 €)
+
+# ------------------------------------------------------------
+#  TIENDAS  (añade, quita o corrige a tu gusto)
+#   web           : página principal de la tienda (el agente escribe el perfume en su buscador)
+#   search        : (opcional) URL de búsqueda directa si la conoces; {q} se sustituye por la búsqueda
+#   activa        : false para desactivar una tienda sin borrarla
+#   origen        : UE | fuera_UE   (fuera_UE => se aplican arancel + gestión de aduana)
+#   iva_incluido  : true si el precio mostrado ya lleva IVA (casi todas las de España/UE)
+#   envio         : coste de envío estándar a España (€)
+#   envio_gratis_desde : importe a partir del cual el envío es gratis
+#   tipo          : nuevo | segunda_mano | decant   (los dos últimos SOLO si garantia: true)
+#   garantia      : true si la tienda ofrece garantía/devolución en ese tipo de producto
+#  IMPORTANTE: las URLs de búsqueda y los costes de envío son puntos de partida;
+#  compruébalos una vez en cada web.
+# ------------------------------------------------------------
+tiendas:
+  notino:
+    nombre: Notino
+    web: "https://www.notino.es/"
+    search: "https://www.notino.es/search.php?exactMatch=false&f={q}"
+    origen: UE
+    iva_incluido: true
+    envio: 3.99
+    envio_gratis_desde: 39
+    tipo: nuevo
+  douglas:
+    nombre: Douglas
+    web: "https://www.douglas.es/es"
+    search: "https://www.douglas.es/search?q={q}"
+    origen: UE
+    iva_incluido: true
+    envio: 3.95
+    envio_gratis_desde: 39
+    tipo: nuevo
+  primor:
+    nombre: Primor
+    web: "https://www.primor.eu/es_es/"
+    search: "https://www.primor.eu/es_es/catalogsearch/result/?q={q}"
+    origen: UE
+    iva_incluido: true
+    envio: 3.95
+    envio_gratis_desde: 39
+    tipo: nuevo
+  sephora:
+    nombre: Sephora
+    web: "https://www.sephora.es/"
+    search: "https://www.sephora.es/buscar?q={q}"
+    origen: UE
+    iva_incluido: true
+    envio: 4.95
+    envio_gratis_desde: 50
+    tipo: nuevo
+  amazon:
+    nombre: Amazon.es
+    web: "https://www.amazon.es/"
+    search: "https://www.amazon.es/s?k={q}"
+    origen: UE
+    iva_incluido: true
+    envio: 0
+    envio_gratis_desde: 0
+    tipo: nuevo
+  marvimundo:
+    nombre: Marvimundo
+    web: "https://www.marvimundo.com/"
+    search: "https://www.marvimundo.com/buscar?controller=search&s={q}"
+    origen: UE
+    iva_incluido: true
+    envio: 4.90
+    envio_gratis_desde: 60
+    tipo: nuevo
+  deloox:
+    nombre: Deloox
+    web: "https://www.deloox.es/"
+    search: ""   # la búsqueda daba error 404; solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR el envío real de Deloox
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  makeup:
+    nombre: Makeup.es
+    web: "https://makeup.es/"
+    search: ""             # sin búsqueda automática: solo funciona con URLs fijadas en cada perfume
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR el envío real
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  electropolis:
+    nombre: Electropolis
+    web: "https://www.electropolis.es/"
+    activa: false          # marketplace (no estaba en tu lista de tiendas); pon true para usarla
+    search: ""             # sin búsqueda automática: solo funciona con URLs fijadas en cada perfume
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR el envío real (y quién es el vendedor: parece marketplace)
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  lookfantastic:
+    nombre: LookFantastic
+    web: "https://www.lookfantastic.es/"
+    search: "https://www.lookfantastic.es/elysium.search?search={q}"   # SIN VERIFICAR (probar con diagnostico.py)
+    origen: UE
+    iva_incluido: true
+    envio: 4.99            # VERIFICAR · origen a verificar: tienda del grupo THG (Reino Unido); si envía desde fuera de la UE hay aduana
+    envio_gratis_desde: 49 # VERIFICAR
+    tipo: nuevo
+  fragra:
+    nombre: Fragra
+    web: "https://fragra.de/"
+    search: ""   # sin búsqueda automática: solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · tienda alemana; origen UE, verificar envío a España
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  beautinow:
+    nombre: Beautinow
+    web: "https://beautinow.com/"
+    search: ""   # sin búsqueda automática: solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  parfumdreams:
+    nombre: Parfumdreams
+    web: "https://www.parfumdreams.es/"
+    search: ""   # sin búsqueda automática: solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.95            # VERIFICAR · tienda alemana con web en español; verificar envío
+    envio_gratis_desde: 50 # VERIFICAR
+    tipo: nuevo
+  laguna:
+    nombre: Perfumerías Laguna
+    web: "https://www.perfumeriaslaguna.com/"
+    search: ""   # la búsqueda daba error 404; solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  paco:
+    nombre: Paco Perfumerías
+    web: "https://www.pacoperfumerias.com/"
+    search: ""   # la búsqueda daba error 404; solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  perfumes24h:
+    nombre: Perfumes24h
+    web: "https://perfumes24h.com/"
+    search: ""   # la búsqueda daba error 404; solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  perfumesclub:
+    nombre: Perfumes Club
+    web: "https://www.perfumesclub.com/"
+    search: ""   # sin búsqueda automática: solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 29 # VERIFICAR
+    tipo: nuevo
+  druni:
+    nombre: Druni
+    web: "https://www.druni.es/"
+    search: "https://www.druni.es/catalogsearch/result/?q={q}"   # SIN VERIFICAR (probar con diagnostico.py)
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  brasty:
+    nombre: Brasty
+    web: "https://www.brasty.es/"
+    search: ""   # sin búsqueda automática: solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  kiwiku:
+    nombre: Kiwiku
+    web: "https://www.kiwiku.com/"
+    search: ""   # sin búsqueda automática: solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  pharmarsi:
+    nombre: Pharma RSI
+    web: "https://pharmarsi.es/"
+    search: ""   # sin búsqueda automática: solo con URLs fijadas
+    origen: UE
+    iva_incluido: true
+    envio: 3.99            # VERIFICAR · verificar envío
+    envio_gratis_desde: 39 # VERIFICAR
+    tipo: nuevo
+  # Ejemplo de tienda de fuera de la UE (descomenta y ajusta):
+  # tienda_emiratos:
+  #   nombre: "Ejemplo tienda UAE"
+  #   search: "https://ejemplo.com/search?q={q}"
+  #   origen: fuera_UE
+  #   iva_incluido: false
+  #   envio: 12
+  #   envio_gratis_desde: 999
+  #   tipo: nuevo
+
+# ------------------------------------------------------------
+#  PERFUMES VIGILADOS
+#   urls (opcional): fija la URL exacta de un producto en una tienda. Es lo MÁS FIABLE.
+#   Ejemplo:  urls: { notino: "https://www.notino.es/rasasi/daarej-..." }
+# ------------------------------------------------------------
+perfumes:
+  - id: daarej
+    nombre: Daarej
+    marca: Rasasi
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: shuhrah
+    nombre: Shuhrah
+    marca: Rasasi
+    concentracion: EDP
+    ml: 90
+    urls: {}
+  - id: hawas_black
+    nombre: Hawas Black
+    marca: Rasasi
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: after_effect
+    nombre: After Effect
+    marca: French Avenue
+    concentracion: EXTRACTO
+    ml: 80
+    urls: {}
+  - id: rayhaan_azul
+    nombre: Rayhaan Azul
+    marca: Rayhaan
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: kenzo_homme_intense
+    nombre: Kenzo Homme Intense
+    marca: Kenzo
+    concentracion: EDT
+    ml: 110
+    urls: {}
+  - id: atlas
+    nombre: Atlas
+    marca: Lattafa
+    concentracion: EDP
+    ml: 55
+    urls: {}
+
+# ------------------------------------------------------------
+#  ALTERNATIVAS / CLONES (se rellenan tras el estudio de fichas)
+#  Mismo formato que arriba, más:  similar_a: <id del perfume original>   motivo: "texto"
+# ------------------------------------------------------------
+alternativas:
+  # Origen: estudio de fichas (ver FICHAS.md). Nombres/tamaños a verificar en tienda la primera vez.
+  - id: alt_supremacy_snoi
+    nombre: Supremacy Not Only Intense
+    marca: Afnan
+    concentracion: EDP
+    ml: 100
+    similar_a: hawas_black
+    motivo: "Clon/afín de Hacivat (piña, pomelo, musgo); más dulce"
+    urls: {}
+  - id: alt_al_dana
+    nombre: Al Dana
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    similar_a: hawas_black
+    motivo: "Apuntado a Hacivat: piña, cítricos, incienso (verificar nombre exacto y ml)"
+    urls: {}
+  - id: alt_amethyst
+    nombre: Amethyst
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    similar_a: after_effect
+    motivo: "Ámbar dulce y afín a Side Effect (parecido ~70 %, se aleja en el fondo)"
+    urls: {}
