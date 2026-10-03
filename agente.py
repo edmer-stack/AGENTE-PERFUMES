@@ -28,7 +28,7 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
-from urllib.parse import quote_plus, urljoin, urlparse
+from urllib.parse import quote_plus, urljoin, urlparse, quote
 from zoneinfo import ZoneInfo
 
 import matplotlib
@@ -187,8 +187,11 @@ def buscar_urls(nav, p, t, tid):
     q = quote_plus(consulta)
     base = t.get("web", "")
     cargo = False
-    # 1) URL directa conocida (config o descubierta antes)
-    directas = ([t["search"]] if t.get("search") else []) + ([urljoin(base, PATRON_OK[tid])] if tid in PATRON_OK else [])
+    # 1) URL directa conocida (config, o aprendida en un perfume anterior de esta misma ejecución)
+    directas = [t["search"]] if t.get("search") else []
+    if tid in PATRON_OK:
+        patt = PATRON_OK[tid]
+        directas.append(patt if "://" in patt else urljoin(base, patt))
     for d in directas:
         html, url = nav.abrir(d.format(q=q))
         if html is not None:
@@ -196,17 +199,23 @@ def buscar_urls(nav, p, t, tid):
             c = candidatos(html, url, p)
             if c:
                 return c, "ok"
-    # 2) escribir en el buscador de la web
+    # 2) escribir en el buscador de la web (lento: solo se hace si no hay patrón aprendido)
     if not base:
         return (None, "sin web en config") if not cargo else ([], "sin resultados")
     html, url = nav.buscar_con_formulario(base, consulta)
     if html is not None:
         c = candidatos(html, url, p)
+        if c and tid not in PATRON_OK:
+            # memoriza la URL de resultados para no repetir el formulario en el resto de perfumes
+            for enc in (q, quote(consulta)):
+                if enc in url:
+                    PATRON_OK[tid] = url.replace(enc, "{q}")
+                    break
         return (c, "ok") if c else ([], "sin resultados")
     motivo = url
     if motivo == "sin buscador" and tid not in PATRON_PROBADO:
         nav.depurar(tid)  # captura en data/debug para ver qué muestra la tienda
-    # 3) probar URLs de búsqueda habituales (una sola vez por tienda)
+    # 3) probar URLs de búsqueda habituales (una sola vez por tienda en toda la ejecución)
     if not str(motivo).startswith("HTTP") and tid not in PATRON_OK and tid not in PATRON_PROBADO:
         PATRON_PROBADO.add(tid)
         for pat in PATRONES:
