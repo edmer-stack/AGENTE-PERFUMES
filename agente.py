@@ -17,6 +17,7 @@ figure en "horarios" de config.yaml (por ejemplo 7:00 y 15:00), nunca dos veces 
 """
 import csv, json, os, re, smtplib, statistics, sys, time, unicodedata
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 for _s in (sys.stdout, sys.stderr):  # evita UnicodeEncodeError en consolas de Windows (cp1252)
     try:
@@ -495,17 +496,30 @@ def main():
     hist_previa = cargar_hist()
     nuevas, resultados, alts, imagenes = [], [], [], {}
     cob, muertas = defaultdict(list), {}
+    items = cfg["perfumes"] + cfg.get("alternativas", [])
+    paralelismo = max(1, int(cfg.get("paralelismo", 4)))
+    visible = "--visible" in sys.argv
 
-    print("Agente perfumes v3 (navegador + patrones de búsqueda)", flush=True)
-    with Navegador(visible="--visible" in sys.argv, carpeta_debug=DATA / "debug") as nav:
-        for p in cfg["perfumes"] + cfg.get("alternativas", []):
+    def trabajar(p):
+        """Busca un perfume en todas las tiendas, con su propio navegador (se ejecuta en paralelo)."""
+        with Navegador(visible=visible, carpeta_debug=DATA / "debug") as nav:
+            return p, *buscar(p, tiendas, imp, hoy, nav, muertas)
+
+    print(f"Agente perfumes v4 (navegador en paralelo x{paralelismo} + patrones de búsqueda)", flush=True)
+    with ThreadPoolExecutor(max_workers=paralelismo) as ex:
+        futuros = [ex.submit(trabajar, p) for p in items]
+        for fut in as_completed(futuros):
+            try:
+                p, filas, est = fut.result()
+            except Exception as e:
+                print(f"⚠ Un perfume falló por completo: {e}", flush=True)
+                continue
             es_alt = "similar_a" in p
-            print(("Alternativa: " if es_alt else "Perfume: ") + p["nombre"], flush=True)
-            filas, est = buscar(p, tiendas, imp, hoy, nav, muertas)
             for tid, e in est.items():
                 cob[tid].append(e)
             buenas = [tiendas[t]["nombre"] for t, e in est.items() if e == "ok"]
-            print(f"   precios en {len(buenas)} tienda(s): {', '.join(buenas) or 'ninguna'}", flush=True)
+            print(f"{'Alternativa' if es_alt else 'Perfume'}: {p['nombre']} -> "
+                  f"precios en {len(buenas)} tienda(s): {', '.join(buenas) or 'ninguna'}", flush=True)
             nuevas += [(p["id"], r) for r in filas]
             if not filas:
                 continue
@@ -519,6 +533,7 @@ def main():
             res = analizar(serie, filas, cfg)
             imagenes[p["id"]] = grafica(p, serie, res)
             resultados.append((p, res, filas))
+    resultados.sort(key=lambda r: items.index(r[0]))  # mismo orden siempre en el informe
 
     cobertura = resumen_cobertura(cob, tiendas)
     print("\nCOBERTURA POR TIENDA")
