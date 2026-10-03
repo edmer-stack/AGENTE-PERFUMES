@@ -71,9 +71,9 @@ class Navegador:
         """Devuelve (html, url_final) o (None, motivo)."""
         try:
             r = self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            self.page.wait_for_timeout(2500)
+            self.page.wait_for_timeout(1500)
             self._cookies()
-            self.page.wait_for_timeout(500)
+            self.page.wait_for_timeout(400)
             if r is not None and r.status >= 400:
                 return None, f"HTTP {r.status}"
             return self.page.content(), self.page.url
@@ -85,7 +85,7 @@ class Navegador:
         html, info = self.abrir(home)
         if html is None:
             return None, info
-        for _ in range(3):
+        for _ in range(2):
             try:
                 self.page.keyboard.press("Escape")  # cierra ventanas emergentes
             except Exception:
@@ -97,8 +97,8 @@ class Navegador:
                         loc.click()
                         loc.fill(consulta)
                         loc.press("Enter")
-                        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-                        self.page.wait_for_timeout(3500)
+                        self.page.wait_for_load_state("domcontentloaded", timeout=15000)
+                        self.page.wait_for_timeout(2200)
                         return self.page.content(), self.page.url
                 except Exception:
                     continue
