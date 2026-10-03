@@ -2,9 +2,16 @@
 #  CONFIGURACIÓN DEL AGENTE DE PERFUMES  (es el ÚNICO archivo que tocarás)
 # ============================================================
 
-horarios: [420, 900]      # minutos desde medianoche (hora Madrid) en los que se puede enviar el informe.
-                          # 420 = 7:00 · 900 = 15:00. Añade o quita horas separadas por comas.
-                          # El agente tarda 20-30 min buscando, así que el informe llega un poco después de cada hora.
+horarios: [435, 885]      # minutos desde medianoche (hora Madrid) EN LOS QUE EMPIEZA A BUSCAR.
+                          # 435 = 7:15 · 885 = 14:45. El agente tarda en torno a 1 hora en terminar
+                          # (depende de cuántas tiendas respondan ese día), así que estas horas de
+                          # inicio están pensadas para que el informe llegue sobre las 8:30 y las 16:00.
+                          # Si ves que llega antes o después de lo que quieres, ajusta estos números:
+                          # cada 15 minutos son 15 unidades (7:15 = 7*60+15 = 435).
+paralelismo: 4            # cuántas tiendas/perfumes busca el agente A LA VEZ, en vez de uno a uno.
+                          # Más alto = más rápido, pero exige más memoria y CPU. 4 es un punto de
+                          # equilibrio razonable tanto para un PC normal como para GitHub Actions.
+                          # Si tu PC va muy lento o se cuelga, baja esto a 2.
 presupuesto_alternativas: 70   # € máximo (precio total) para perfumes alternativos
 min_dias_historial: 14    # por debajo de esto el agente usa "modo arranque"
 
