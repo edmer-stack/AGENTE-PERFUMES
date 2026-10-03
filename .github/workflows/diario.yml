@@ -1,20 +1,20 @@
 name: informe-diario
 on:
   schedule:
-    # El agente comprueba solo, con "horarios" de config.yaml (7:00 y 15:00 Madrid),
-    # si le toca enviar. Por eso se lanza en ambos horarios (verano/invierno): la
-    # ejecución que no toque saldrá enseguida sin hacer nada, y no duplica envíos.
-    - cron: "0 5 * * *"    # 7:00 Madrid en horario de verano (CEST, UTC+2)
-    - cron: "0 6 * * *"    # 7:00 Madrid en horario de invierno (CET, UTC+1)
-    - cron: "0 13 * * *"   # 15:00 Madrid en horario de verano
-    - cron: "0 14 * * *"   # 15:00 Madrid en horario de invierno
+    # El agente comprueba solo, con "horarios" de config.yaml (7:15 y 14:45 Madrid),
+    # si le toca empezar a buscar. Por eso se lanza en ambos husos horarios (verano/invierno):
+    # la ejecución que no toque saldrá enseguida sin hacer nada, y no duplica envíos.
+    - cron: "15 5 * * *"   # 7:15 Madrid en horario de verano (CEST, UTC+2)
+    - cron: "15 6 * * *"   # 7:15 Madrid en horario de invierno (CET, UTC+1)
+    - cron: "45 12 * * *"  # 14:45 Madrid en horario de verano
+    - cron: "45 13 * * *"  # 14:45 Madrid en horario de invierno
   workflow_dispatch:       # botón "Run workflow" para probar a mano
 permissions:
   contents: write
 jobs:
   informe:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
