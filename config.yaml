@@ -241,18 +241,6 @@ tiendas:
 #   Ejemplo:  urls: { notino: "https://www.notino.es/rasasi/daarej-..." }
 # ------------------------------------------------------------
 perfumes:
-  - id: daarej
-    nombre: Daarej
-    marca: Rasasi
-    concentracion: EDP
-    ml: 100
-    urls: {}
-  - id: shuhrah
-    nombre: Shuhrah
-    marca: Rasasi
-    concentracion: EDP
-    ml: 90
-    urls: {}
   - id: hawas_black
     nombre: Hawas Black
     marca: Rasasi
@@ -283,34 +271,163 @@ perfumes:
     concentracion: EDP
     ml: 55
     urls: {}
-
-# ------------------------------------------------------------
-#  ALTERNATIVAS / CLONES (se rellenan tras el estudio de fichas)
-#  Mismo formato que arriba, más:  similar_a: <id del perfume original>   motivo: "texto"
-# ------------------------------------------------------------
-alternativas:
-  # Origen: estudio de fichas (ver FICHAS.md). Nombres/tamaños a verificar en tienda la primera vez.
-  - id: alt_supremacy_snoi
-    nombre: Supremacy Not Only Intense
+  - id: lattafa_opulent_oud
+    nombre: Opulent Oud
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: rasasi_daarej_pour_homme
+    nombre: Daarej Pour Homme
+    marca: Rasasi
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: rasasi_shuhrah_pour_homme
+    nombre: Shuhrah Pour Homme
+    marca: Rasasi
+    concentracion: EDP
+    ml: 90
+    urls: {}
+  - id: maison_alhambra_the_artist_no2
+    nombre: The Artist Nº2
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: french_avenue_sultan_the_conqueror
+    nombre: Sultan The Conqueror
+    marca: French Avenue
+    concentracion: EDP
+    ml: 80
+    urls: {}
+  - id: rayhaan_crimson
+    nombre: Crimson
+    marca: Rayhaan
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: fomo_gary_s_den_le_parfum
+    nombre: Gary's Den Le Parfum
+    marca: Fomo
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: maison_alhambra_terra
+    nombre: Terra
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 50
+    urls: {}
+  - id: maison_alhambra_dark_door_intense
+    nombre: Dark Door Intense
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: french_avenue_enigma_une
+    nombre: Enigma Une
+    marca: French Avenue
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: afnan_turathi_blue
+    nombre: Turathi Blue
     marca: Afnan
     concentracion: EDP
-    ml: 100
-    similar_a: hawas_black
-    motivo: "Clon/afín de Hacivat (piña, pomelo, musgo); más dulce"
+    ml: 90
     urls: {}
-  - id: alt_al_dana
-    nombre: Al Dana
+  - id: maison_alhambra_domino_essence
+    nombre: Domino Essence
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: maison_alhambra_toro_pour_homme_glace
+    nombre: Toro Pour Homme Glace
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lalique_encre_noire_a_l_extreme
+    nombre: Encre Noire Á l'Extreme
+    marca: Lalique
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: armaf_club_de_nuit_precieux_i_extrait_de_parfum
+    nombre: Club de Nuit Precieux I Extrait de Parfum
+    marca: Armaf
+    concentracion: EDP
+    ml: 55
+    urls: {}
+  - id: lattafa_ameer_al_oudh_intense_oud
+    nombre: Ameer Al Oudh Intense Oud
     marca: Lattafa
     concentracion: EDP
     ml: 100
-    similar_a: hawas_black
-    motivo: "Apuntado a Hacivat: piña, cítricos, incienso (verificar nombre exacto y ml)"
     urls: {}
-  - id: alt_amethyst
-    nombre: Amethyst
+  - id: lattafa_pride_eternal_oud
+    nombre: Eternal Oud
+    marca: Lattafa Pride
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: ard_al_zaafran_midnight_oud
+    nombre: Midnight Oud
+    marca: Ard Al Zaafran
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lattafa_bade_e_al_oud_oud_for_glory
+    nombre: Bade'e Al Oud Oud for Glory
     marca: Lattafa
     concentracion: EDP
     ml: 100
-    similar_a: after_effect
-    motivo: "Ámbar dulce y afín a Side Effect (parecido ~70 %, se aleja en el fondo)"
     urls: {}
+  - id: ralph_lauren_polo_green
+    nombre: Polo Green
+    marca: Ralph Lauren
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: paco_rabanne_paco_rabanne_pour_homme
+    nombre: Paco Rabanne Pour Homme
+    marca: Paco Rabanne
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: cacharel_cacharel_pour_homme
+    nombre: Cacharel Pour Homme
+    marca: Cacharel
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: ralph_lauren_polo_blue_parfum
+    nombre: Polo Blue Parfum
+    marca: Ralph Lauren
+    concentracion: EDP
+    ml: 75
+    urls: {}
+  - id: hermes_terre_d_hermes_eau_de_parfum_intense
+    nombre: Terre D'Hermès Eau de Parfum Intense
+    marca: Hermès
+    concentracion: EDP
+    ml: 50
+    urls: {}
+  - id: issey_miyake_l_eau_d_issey_pour_homme
+    nombre: L'Eau d'Issey Pour Homme
+    marca: Issey Miyake
+    concentracion: EDT
+    ml: 75
+    urls: {}
+
+# ------------------------------------------------------------
+#  ALTERNATIVAS / CLONES — vacío a propósito.
+#  El agente NO busca clones por su cuenta: no analiza notas olfativas ni compara
+#  perfiles, así que nunca rellenes esto por tu cuenta pensando que lo hizo solo.
+#  Si en algún momento quieres vigilar el precio de una alternativa concreta,
+#  añádela como un perfume normal con gestionar_perfumes.py (o pídemelo en el
+#  chat para que primero investigue si es un clon fiable).
+# ------------------------------------------------------------
+alternativas: []
