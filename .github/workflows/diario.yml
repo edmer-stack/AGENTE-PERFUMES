@@ -11,6 +11,12 @@ on:
   workflow_dispatch:       # botón "Run workflow" para probar a mano
 permissions:
   contents: write
+concurrency:
+  # Nunca dos ejecuciones a la vez (evita choques al guardar el histórico, y evita
+  # que una prueba manual se solape con una automática). Las que lleguen de más
+  # esperan en cola en vez de cancelarse, así ninguna búsqueda se pierde.
+  group: informe-diario
+  cancel-in-progress: false
 jobs:
   informe:
     runs-on: ubuntu-latest
@@ -26,14 +32,33 @@ jobs:
       - run: python agente.py
         env:
           FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          PARALELISMO: "2"   # el servidor de GitHub tiene poca potencia: con 4 a la vez,
+                             # algunos perfumes se quedaban sin ninguna tienda por saturación
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           WA_PHONE: ${{ secrets.WA_PHONE }}
           WA_APIKEY: ${{ secrets.WA_APIKEY }}
       - name: Guardar histórico
+        continue-on-error: true   # si falla, no marca en rojo toda la ejecución: el
+                                   # informe/email/whatsapp de arriba ya se mandaron bien
         run: |
           git config user.name "agente-perfumes"
           git config user.email "agente-perfumes@users.noreply.github.com"
           git add data
-          git diff --cached --quiet || (git commit -m "datos $(date -u +%F)" && git push)
+          if git diff --cached --quiet; then
+            echo "Sin cambios en data, nada que subir."
+          else
+            git commit -m "datos $(date -u +%F)"
+            exito=0
+            for intento in 1 2 3 4 5; do
+              if git pull --rebase origin main && git push; then
+                exito=1; break
+              fi
+              echo "Choque con otra ejecución, reintentando ($intento)..."
+              sleep 10
+            done
+            if [ "$exito" != "1" ]; then
+              echo "No se pudo subir el histórico tras varios intentos (no afecta al informe ya enviado)."
+            fi
+          fi
