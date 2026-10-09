@@ -497,7 +497,9 @@ def main():
     nuevas, resultados, alts, imagenes = [], [], [], {}
     cob, muertas = defaultdict(list), {}
     items = cfg["perfumes"] + cfg.get("alternativas", [])
-    paralelismo = max(1, int(cfg.get("paralelismo", 4)))
+    # PARALELISMO en el entorno (si está puesta, p.ej. en GitHub Actions) manda sobre config.yaml,
+    # para poder usar un número distinto en un servidor compartido (menos potente) que en tu PC.
+    paralelismo = max(1, int(os.getenv("PARALELISMO") or cfg.get("paralelismo", 4)))
     visible = "--visible" in sys.argv
 
     def trabajar(p):
