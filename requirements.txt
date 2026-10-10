@@ -4,3 +4,4 @@ pyyaml
 matplotlib
 playwright
 tzdata
+playwright-stealth
