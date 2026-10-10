@@ -507,34 +507,53 @@ def main():
         with Navegador(visible=visible, carpeta_debug=DATA / "debug") as nav:
             return p, *buscar(p, tiendas, imp, hoy, nav, muertas)
 
-    print(f"Agente perfumes v4 (navegador en paralelo x{paralelismo} + patrones de búsqueda)", flush=True)
-    with ThreadPoolExecutor(max_workers=paralelismo) as ex:
-        futuros = [ex.submit(trabajar, p) for p in items]
-        for fut in as_completed(futuros):
-            try:
-                p, filas, est = fut.result()
-            except Exception as e:
-                print(f"⚠ Un perfume falló por completo: {e}", flush=True)
-                continue
-            es_alt = "similar_a" in p
-            for tid, e in est.items():
-                cob[tid].append(e)
-            buenas = [tiendas[t]["nombre"] for t, e in est.items() if e == "ok"]
-            print(f"{'Alternativa' if es_alt else 'Perfume'}: {p['nombre']} -> "
-                  f"precios en {len(buenas)} tienda(s): {', '.join(buenas) or 'ninguna'}", flush=True)
-            nuevas += [(p["id"], r) for r in filas]
-            if not filas:
-                continue
-            if es_alt:
-                mejor = min(filas, key=lambda r: r["total"])
-                if mejor["total"] <= cfg["presupuesto_alternativas"]:
-                    alts.append((p, mejor))
-                continue
-            serie = serie_diaria(hist_previa, p["id"], hoy)
-            serie = [(d, v) for d, v in serie if d != str(hoy)] + [(str(hoy), min(r["total"] for r in filas))]
-            res = analizar(serie, filas, cfg)
-            imagenes[p["id"]] = grafica(p, serie, res)
-            resultados.append((p, res, filas))
+    def procesar(p, filas, est):
+        """Registra el resultado de un perfume. Devuelve True si encontró algún precio."""
+        es_alt = "similar_a" in p
+        for tid, e in est.items():
+            cob[tid].append(e)
+        buenas = [tiendas[t]["nombre"] for t, e in est.items() if e == "ok"]
+        print(f"{'Alternativa' if es_alt else 'Perfume'}: {p['nombre']} -> "
+              f"precios en {len(buenas)} tienda(s): {', '.join(buenas) or 'ninguna'}", flush=True)
+        nuevas.extend((p["id"], r) for r in filas)
+        if not filas:
+            return False
+        if es_alt:
+            mejor = min(filas, key=lambda r: r["total"])
+            if mejor["total"] <= cfg["presupuesto_alternativas"]:
+                alts.append((p, mejor))
+            return True
+        serie = serie_diaria(hist_previa, p["id"], hoy)
+        serie = [(d, v) for d, v in serie if d != str(hoy)] + [(str(hoy), min(r["total"] for r in filas))]
+        res = analizar(serie, filas, cfg)
+        imagenes[p["id"]] = grafica(p, serie, res)
+        resultados.append((p, res, filas))
+        return True
+
+    print(f"Agente perfumes v5 (navegador en paralelo x{paralelismo} + patrones de búsqueda + reintento)", flush=True)
+    pendientes = list(items)
+    for ronda in (1, 2):  # ronda 2: solo reintenta los que se quedaron sin ningún precio
+        if not pendientes:
+            break
+        if ronda > 1:
+            print(f"\nReintentando {len(pendientes)} perfume(s) sin resultados "
+                  f"(ronda {ronda}, con lo ya aprendido de cada tienda)...", flush=True)
+            time.sleep(5)  # pequeña pausa de cortesía antes de volver a llamar a las mismas webs
+        siguientes = []
+        tandas = pendientes if ronda == 1 else pendientes  # mismo paralelismo en ambas rondas
+        with ThreadPoolExecutor(max_workers=paralelismo) as ex:
+            futuros = {ex.submit(trabajar, p): p for p in tandas}
+            for fut in as_completed(futuros):
+                p_esperado = futuros[fut]
+                try:
+                    p, filas, est = fut.result()
+                except Exception as e:
+                    print(f"⚠ {p_esperado['nombre']} falló por completo: {e}", flush=True)
+                    siguientes.append(p_esperado)
+                    continue
+                if not procesar(p, filas, est) and ronda == 1:
+                    siguientes.append(p)
+        pendientes = siguientes
     resultados.sort(key=lambda r: items.index(r[0]))  # mismo orden siempre en el informe
 
     cobertura = resumen_cobertura(cob, tiendas)
