@@ -3,12 +3,35 @@ Navegador automático (Chromium sin ventana) para el agente de perfumes.
 Hace lo que haría una persona: abre la web, acepta cookies, escribe el perfume
 en el buscador y devuelve el HTML ya cargado (con JavaScript ejecutado).
 """
+import random
 import re
 
 from playwright.sync_api import sync_playwright
 
-UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+# Disimula que el navegador es automático (playwright_stealth, >900 estrellas en GitHub).
+# Soporta las dos formas que ha tenido la librería con el tiempo; si no está instalada,
+# el agente sigue funcionando igual, solo que sin este disfraz.
+try:
+    from playwright_stealth import Stealth
+    _stealth = Stealth()
+
+    def _aplicar_stealth(page):
+        try:
+            _stealth.apply_stealth_sync(page)
+        except AttributeError:
+            pass
+except ImportError:
+    try:
+        from playwright_stealth import stealth_sync as _aplicar_stealth
+    except ImportError:
+        def _aplicar_stealth(page):
+            pass
+
+def _espera(ms):
+    """Como wait_for_timeout, pero con un pequeño margen aleatorio (como haría una persona)."""
+    return int(ms * random.uniform(0.7, 1.4))
+
+
 COOKIES = re.compile(r"^(aceptar( todas?| todo| cookies)?|acepto|permitir( todas?)?|accept( all)?|entendido|de acuerdo)$", re.I)
 CAJAS = ['input[type="search"]', 'input[name="q"]', 'input[name="s"]', 'input[name="search"]',
          'input[name="query"]', 'input[name="keyword"]', 'input[placeholder*="uscar" i]',
@@ -43,11 +66,14 @@ class Navegador:
             self.browser = self.pw.chromium.launch(channel="chrome", headless=not self.visible, args=args)
         except Exception:
             self.browser = self.pw.chromium.launch(headless=not self.visible, args=args)
+        # Sin "user_agent" propio: que Chrome anuncie el suyo real, consistente con cómo
+        # se comporta de verdad (un UA escrito a mano puede desentonar con el resto y delatarlo).
         self.ctx = self.browser.new_context(
-            locale="es-ES", timezone_id="Europe/Madrid", user_agent=UA,
+            locale="es-ES", timezone_id="Europe/Madrid",
             viewport={"width": 1366, "height": 900})
         self.ctx.set_default_timeout(20000)
         self.page = self.ctx.new_page()
+        _aplicar_stealth(self.page)
         return self
 
     def __exit__(self, *exc):
@@ -71,9 +97,9 @@ class Navegador:
         """Devuelve (html, url_final) o (None, motivo)."""
         try:
             r = self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            self.page.wait_for_timeout(1500)
+            self.page.wait_for_timeout(_espera(1500))
             self._cookies()
-            self.page.wait_for_timeout(400)
+            self.page.wait_for_timeout(_espera(400))
             if r is not None and r.status >= 400:
                 return None, f"HTTP {r.status}"
             return self.page.content(), self.page.url
@@ -98,7 +124,7 @@ class Navegador:
                         loc.fill(consulta)
                         loc.press("Enter")
                         self.page.wait_for_load_state("domcontentloaded", timeout=15000)
-                        self.page.wait_for_timeout(2200)
+                        self.page.wait_for_timeout(_espera(2200))
                         return self.page.content(), self.page.url
                 except Exception:
                     continue
@@ -107,7 +133,7 @@ class Navegador:
                     loc = self.page.locator(sel).first
                     if loc.count() and loc.is_visible():
                         loc.click()
-                        self.page.wait_for_timeout(800)
+                        self.page.wait_for_timeout(_espera(800))
                         break
                 except Exception:
                     continue
