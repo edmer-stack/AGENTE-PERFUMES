@@ -38,6 +38,31 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker
 import requests
 import yaml
+
+# Comparación flexible de nombres (RapidFuzz, 4.200 estrellas en GitHub): permite que un
+# perfume guardado como "Club de Nuit Precieux I Extrait de Parfum" case con una tienda que
+# lo anuncia solo como "Club de Nuit Precieux". Si no está instalada, se usa una alternativa
+# más simple incluida en el propio Python (menos precisa, pero el agente sigue funcionando).
+try:
+    from rapidfuzz import fuzz
+
+    def _parecido(a, b):
+        return fuzz.token_set_ratio(a, b)
+except ImportError:
+    from difflib import SequenceMatcher
+
+    def _parecido(a, b):
+        """Reimplementación del 'token_set_ratio' de RapidFuzz con difflib (sin instalar nada
+        externo): no penaliza que un texto tenga más palabras que el otro, solo le importa
+        cuánto se parecen las palabras que SÍ comparten."""
+        ra, rb = lambda x, y: SequenceMatcher(None, x, y).ratio() * 100, None
+        ta, tb = set(a.split()), set(b.split())
+        comunes = " ".join(sorted(ta & tb))
+        solo_a = " ".join(sorted(ta - tb))
+        solo_b = " ".join(sorted(tb - ta))
+        c1 = (comunes + " " + solo_a).strip()
+        c2 = (comunes + " " + solo_b).strip()
+        return max(ra(comunes, c1), ra(comunes, c2), ra(c1, c2))
 from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).parent
@@ -124,10 +149,18 @@ def leer_producto(html):
     return None
 
 
+UMBRAL_PARECIDO = 72  # 0-100. Por debajo de esto, se considera que no es el mismo perfume.
+
+
 def coincide(titulo, p):
-    """False = no es; True = es; 'sin_ml' = parece que es pero el título no indica tamaño."""
+    """False = no es; True = es; 'sin_ml' = parece que es pero el título no indica tamaño.
+    Usa un parecido aproximado (RapidFuzz) en vez de exigir cada palabra tal cual: una tienda
+    puede anunciar "Club de Nuit Precieux" cuando tú guardaste "Club de Nuit Precieux I Extrait
+    de Parfum", y sigue siendo el mismo producto."""
     t = norm(titulo)
-    if not all(tok in t for tok in norm(p["nombre"]).split()) or norm(p["marca"]) not in t:
+    esperado = norm(f"{p['marca']} {p['nombre']}")
+    parecido = _parecido(esperado, t)
+    if parecido < UMBRAL_PARECIDO:
         return False
     sin_ml = False
     if not re.search(rf"\b{p['ml']}\s?ml", t):
@@ -144,21 +177,29 @@ def coincide(titulo, p):
     return "sin_ml" if sin_ml else True
 
 
+UMBRAL_CANDIDATO = 60  # más laxo que UMBRAL_PARECIDO: aquí solo decidimos qué enlaces
+                       # merece la pena abrir; coincide() hace después la comprobación fina.
+
+
 def candidatos(html, base, p):
     soup = BeautifulSoup(html, "html.parser")
-    toks = norm(p["nombre"]).split()
+    esperado = norm(f"{p['marca']} {p['nombre']}")
     dominio = urlparse(base).netloc.replace("www.", "")
-    vistos, res = set(), []
+    vistos, puntuados = set(), []
     for a in soup.find_all("a", href=True):
         u = urljoin(base, a["href"].split("#")[0])
         pu = urlparse(u)
         if dominio not in pu.netloc or any(x in u for x in ("signin", "sponsored", "/ap/", "login")):
             continue
+        if u in vistos:
+            continue
         txt = norm(a.get_text(" ") + " " + pu.path.replace("-", " ").replace("/", " "))
-        if all(t in txt for t in toks) and u not in vistos:
+        puntuacion = _parecido(esperado, txt)
+        if puntuacion >= UMBRAL_CANDIDATO:
             vistos.add(u)
-            res.append(u)
-    return res[:4]
+            puntuados.append((puntuacion, u))
+    puntuados.sort(key=lambda x: -x[0])  # visitar primero los enlaces más parecidos
+    return [u for _, u in puntuados[:4]]
 
 
 def precio_total(precio, t, imp):
@@ -445,10 +486,18 @@ def enviar_email(html, imagenes, hoy):
         img.add_header("Content-ID", f"<g_{pid}>")
         img.add_header("Content-Disposition", "inline")
         msg.attach(img)
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-        s.login(user, pw)
-        s.send_message(msg)
-    print("✔ Email enviado")
+    for intento in range(1, 4):  # Gmail a veces corta la conexión sin motivo: 3 intentos
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
+                s.login(user, pw)
+                s.send_message(msg)
+            print("✔ Email enviado")
+            return
+        except (smtplib.SMTPException, OSError) as e:
+            print(f"⚠ Email: intento {intento} de 3 falló ({e}); reintentando..." if intento < 3
+                  else f"⚠ Email: no se pudo enviar tras 3 intentos ({e})")
+            if intento < 3:
+                time.sleep(8)
 
 
 def enviar_whatsapp(resultados):
@@ -530,7 +579,7 @@ def main():
         resultados.append((p, res, filas))
         return True
 
-    print(f"Agente perfumes v5 (navegador en paralelo x{paralelismo} + patrones de búsqueda + reintento)", flush=True)
+    print(f"Agente perfumes v6 (navegador en paralelo x{paralelismo} + patrones de búsqueda + reintento)", flush=True)
     pendientes = list(items)
     for ronda in (1, 2):  # ronda 2: solo reintenta los que se quedaron sin ningún precio
         if not pendientes:
