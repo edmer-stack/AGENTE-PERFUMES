@@ -98,9 +98,24 @@ def descargar(url):
 
 
 # ------------------------------------------------------------------ scraping
+# Avisos de "sin stock" en español e inglés (inspirado en StockTrackerbot, que hace esta
+# misma doble comprobación -datos técnicos + texto visible- para tiendas españolas como GAME
+# o MediaMarkt). Algunas tiendas no marcan bien el "OutOfStock" en sus datos técnicos, pero sí
+# muestran el aviso al cliente, así que hay que mirar también el texto de la página.
+AGOTADO = re.compile(
+    r"\b(agotado|sin\s+stock|no\s+disponible|producto\s+no\s+disponible|fuera\s+de\s+stock|"
+    r"temporalmente\s+no\s+disponible|avisame\s+cuando|notificame\s+cuando|"
+    r"out\s+of\s+stock|sold\s*out|currently\s+unavailable)\b",
+    re.I,
+)
+
+
 def leer_producto(html):
-    """Devuelve (titulo, precio) leyendo JSON-LD schema.org o metaetiquetas."""
+    """Devuelve (titulo, precio) leyendo JSON-LD schema.org o metaetiquetas, o None si el
+    producto no se puede comprar (precio ausente o la página indica que está agotado)."""
     soup = BeautifulSoup(html, "html.parser")
+    if AGOTADO.search(norm(soup.get_text(" "))):
+        return None  # agotado/no disponible: no sirve como precio válido, aunque tenga uno escrito
     for tag in soup.find_all("script", type="application/ld+json"):
         try:
             data = json.loads(tag.string or tag.get_text() or "")
@@ -151,6 +166,19 @@ def leer_producto(html):
 
 UMBRAL_PARECIDO = 72  # 0-100. Por debajo de esto, se considera que no es el mismo perfume.
 
+# Variantes de "hombre" y "mujer" en los idiomas que usan tus tiendas (español, francés, inglés).
+GENERO_H = re.compile(r"\b(pour homme|for him|for men|homme|hombre|masculino)\b", re.I)
+GENERO_M = re.compile(r"\b(pour femme|for her|for women|femme|mujer|femenino)\b", re.I)
+
+
+def genero_de(texto):
+    """'H' si el texto indica versión de hombre, 'M' si de mujer, None si no lo especifica."""
+    if GENERO_H.search(texto):
+        return "H"
+    if GENERO_M.search(texto):
+        return "M"
+    return None
+
 
 def coincide(titulo, p):
     """False = no es; True = es; 'sin_ml' = parece que es pero el título no indica tamaño.
@@ -159,6 +187,12 @@ def coincide(titulo, p):
     de Parfum", y sigue siendo el mismo producto."""
     t = norm(titulo)
     esperado = norm(f"{p['marca']} {p['nombre']}")
+    # "Perfume X Pour Homme" y "Perfume X Pour Femme" comparten casi todas las palabras, así
+    # que el parecido por sí solo no basta: si tu perfume especifica un sexo y el título de la
+    # tienda especifica el contrario, nunca es el mismo producto, por muy parecido que salga.
+    gen_esperado, gen_titulo = genero_de(esperado), genero_de(t)
+    if gen_esperado and gen_titulo and gen_esperado != gen_titulo:
+        return False
     parecido = _parecido(esperado, t)
     if parecido < UMBRAL_PARECIDO:
         return False
@@ -500,21 +534,53 @@ def enviar_email(html, imagenes, hoy):
                 time.sleep(8)
 
 
+LIMITE_WHATSAPP = 900  # caracteres por mensaje. CallMeBot (gratuito) corta o falla en
+                        # silencio con mensajes largos, así que si hay muchos perfumes se
+                        # reparte en varios mensajes seguidos en vez de uno solo gigante.
+
+
+def _partir_en_mensajes(lineas, limite=LIMITE_WHATSAPP):
+    mensajes, actual = [], []
+    largo = 0
+    for linea in lineas:
+        if largo + len(linea) + 1 > limite and actual:
+            mensajes.append("\n".join(actual))
+            actual, largo = [], 0
+        actual.append(linea)
+        largo += len(linea) + 1
+    if actual:
+        mensajes.append("\n".join(actual))
+    return mensajes
+
+
 def enviar_whatsapp(resultados):
     phone, key = os.getenv("WA_PHONE"), os.getenv("WA_APIKEY")
     if not (phone and key):
         print("⚠ Faltan WA_PHONE / WA_APIKEY: no se envía WhatsApp.")
         return
     icono = {"COMPRA INMEDIATA": "🟢", "PERMANECER EN ESPERA": "🟡", "DESESTIMAR COMPRA": "🔴"}
-    lineas = ["*Perfumes hoy*"] + [f'{icono.get(r["veredicto"], "•")} {p["nombre"]}: {eur(r["actual"])} · {r["veredicto"].title()}'
-                                   for p, r, _ in resultados]
-    lineas.append("Detalle completo en tu email.")
-    try:
-        requests.get("https://api.callmebot.com/whatsapp.php",
-                     params={"phone": phone, "text": "\n".join(lineas), "apikey": key}, timeout=30)
-        print("✔ WhatsApp enviado")
-    except requests.RequestException as e:
-        print("⚠ WhatsApp falló:", e)
+    lineas = [f'{icono.get(r["veredicto"], "•")} {p["nombre"]}: {eur(r["actual"])} · {r["veredicto"].title()}'
+              for p, r, _ in resultados]
+    mensajes = _partir_en_mensajes(lineas)
+    total = len(mensajes)
+    enviados = 0
+    for i, cuerpo in enumerate(mensajes, 1):
+        cabecera = f"*Perfumes hoy ({i}/{total})*\n" if total > 1 else "*Perfumes hoy*\n"
+        pie = "\nDetalle completo en tu email." if i == total else ""
+        texto = cabecera + cuerpo + pie
+        try:
+            r = requests.get("https://api.callmebot.com/whatsapp.php",
+                              params={"phone": phone, "text": texto, "apikey": key}, timeout=30)
+            if "error" in r.text.lower() and "queued" not in r.text.lower():
+                print(f"⚠ WhatsApp ({i}/{total}): CallMeBot respondió con un posible error: {r.text[:200]}")
+            else:
+                enviados += 1
+            if i < total:
+                time.sleep(3)  # pequeño margen entre mensajes para no parecer spam
+        except requests.RequestException as e:
+            print(f"⚠ WhatsApp ({i}/{total}) falló: {e}")
+    print(f"✔ WhatsApp enviado ({enviados}/{total} mensaje(s))" if enviados == total
+          else f"⚠ WhatsApp incompleto: {enviados}/{total} mensaje(s) confirmados")
 
 
 # ------------------------------------------------------------------ principal
@@ -579,7 +645,7 @@ def main():
         resultados.append((p, res, filas))
         return True
 
-    print(f"Agente perfumes v6 (navegador en paralelo x{paralelismo} + patrones de búsqueda + reintento)", flush=True)
+    print(f"Agente perfumes v8 (navegador en paralelo x{paralelismo} + patrones de búsqueda + reintento)", flush=True)
     pendientes = list(items)
     for ronda in (1, 2):  # ronda 2: solo reintenta los que se quedaron sin ningún precio
         if not pendientes:
