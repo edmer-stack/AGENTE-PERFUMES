@@ -421,6 +421,144 @@ perfumes:
     concentracion: EDT
     ml: 75
     urls: {}
+  - id: sean_john_unforgivable_for_men
+    nombre: Unforgivable for Men
+    marca: Sean John
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: lanvin_lanvin_l_homme
+    nombre: Lanvin L'Homme
+    marca: Lanvin
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: rayhaan_nocturno_elixir_pour_homme
+    nombre: Nocturno Elixir Pour Homme
+    marca: Rayhaan
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: armaf_odyssey_nexus
+    nombre: Odyssey Nexus
+    marca: Armaf
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lalique_lalique_pour_homme_lion
+    nombre: Lalique Pour Homme Lion
+    marca: Lalique
+    concentracion: EDP
+    ml: 125
+    urls: {}
+  - id: khadlaj_shiyaaka_snow
+    nombre: Shiyaaka Snow
+    marca: Khadlaj
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: azzaro_chrome_for_men
+    nombre: Chrome for men
+    marca: Azzaro
+    concentracion: EDT
+    ml: 200
+    urls: {}
+  - id: halston_halston_z_14
+    nombre: Halston Z-14
+    marca: Halston
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: chanel_platinum_egoiste
+    nombre: PLATINUM ÉGOÏSTE
+    marca: CHANEL
+    concentracion: EDT
+    ml: 50
+    urls: {}
+  - id: loewe_loewe_7
+    nombre: LOEWE 7
+    marca: LOEWE
+    concentracion: EDT
+    ml: 50
+    urls: {}
+  - id: bijan_bijan_men
+    nombre: Bijan Men
+    marca: Bijan
+    concentracion: EDT
+    ml: 75
+    urls: {}
+  - id: calvin_klein_eternity_for_men
+    nombre: Eternity for Men
+    marca: Calvin Klein
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: cerruti_1881_pour_homme
+    nombre: 1881 Pour Homme
+    marca: Cerruti
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: geoffrey_beene_grey_flannel
+    nombre: Grey Flannel
+    marca: Geoffrey Beene
+    concentracion: EDT
+    ml: 120
+    urls: {}
+  - id: millennials_tonino_lamborghini
+    nombre: Tonino Lamborghini
+    marca: Millennials
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: harry_potter_magical_essence_man_ambition
+    nombre: Magical Essence Man Ambition
+    marca: Harry Potter
+    concentracion: EDP
+    ml: 50
+    urls: {}
+  - id: ted_lapidus_lapidus_pour_homme_black_extreme
+    nombre: Lapidus Pour Homme Black Extreme
+    marca: Ted Lapidus
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: just_jack_the_dark
+    nombre: The Dark
+    marca: Just Jack
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: ard_al_zaafaran_oud_24_hours
+    nombre: Oud 24 Hours
+    marca: Ard Al Zaafaran
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: ted_lapidus_oud_noir
+    nombre: Oud Noir
+    marca: Ted Lapidus
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: kolmaz_arabi_cana
+    nombre: Arabi Cana
+    marca: Kolmaz
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: maison_alhambra_the_trail
+    nombre: The Trail
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: massimo_dutti_midnight_ink
+    nombre: Midnight Ink
+    marca: Massimo Dutti
+    concentracion: EDP
+    ml: 100
+    urls: {}
 
 # ------------------------------------------------------------
 #  ALTERNATIVAS / CLONES — vacío a propósito.
