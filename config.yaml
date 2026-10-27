@@ -559,6 +559,36 @@ perfumes:
     concentracion: EDP
     ml: 100
     urls: {}
+  - id: instituto_espanol_golden_wasser_para_hombre
+    nombre: Golden Wasser para Hombre
+    marca: Instituto Español
+    concentracion: EDT
+    ml: 150
+    urls: {}
+  - id: nikos_sculpture_homme_god_s_night
+    nombre: Sculpture Homme God's Night
+    marca: Nikos
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: nikos_sculpture_homme
+    nombre: Sculpture Homme
+    marca: Nikos
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: rasasi_afshan
+    nombre: Afshan
+    marca: Rasasi
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lattafa_al_nashama_caprice
+    nombre: Al Nashama Caprice
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    urls: {}
 
 # ------------------------------------------------------------
 #  ALTERNATIVAS / CLONES — vacío a propósito.
