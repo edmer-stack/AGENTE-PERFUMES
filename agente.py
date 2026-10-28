@@ -303,9 +303,27 @@ def buscar_urls(nav, p, t, tid):
     return ([], "sin resultados") if cargo else (None, motivo)
 
 
-def buscar(p, tiendas, imp, hoy, nav, muertas):
+def _orden_tiendas(tiendas, muertas):
+    """Primero las tiendas que ya sabemos que funcionan (URL fija, patrón aprendido),
+    luego las desconocidas, y las que ya sabemos muertas al final del todo. Así, si con
+    las primeras ya hay precio de sobra, ni siquiera hace falta tocar las dudosas."""
+    def prioridad(item):
+        tid, t = item
+        if tid in muertas:
+            return 2
+        if t.get("search") or tid in PATRON_OK:
+            return 0
+        return 1
+    return sorted(tiendas.items(), key=prioridad)
+
+
+def buscar(p, tiendas, imp, hoy, nav, muertas, limite_ofertas=6):
+    """limite_ofertas: en cuanto se reúnen tantos precios válidos, se para de consultar más
+    tiendas para este perfume (el informe solo enseña las 4 mejores de todas formas)."""
     filas, estado = [], {}
-    for tid, t in tiendas.items():
+    for tid, t in _orden_tiendas(tiendas, muertas):
+        if len(filas) >= limite_ofertas:
+            break  # ya hay precio de sobra; no merece la pena seguir probando tiendas dudosas
         if not t.get("activa", True):
             continue
         if tid in muertas:
@@ -616,11 +634,12 @@ def main():
     # para poder usar un número distinto en un servidor compartido (menos potente) que en tu PC.
     paralelismo = max(1, int(os.getenv("PARALELISMO") or cfg.get("paralelismo", 4)))
     visible = "--visible" in sys.argv
+    limite_ofertas = int(cfg.get("limite_ofertas_por_perfume", 6))
 
     def trabajar(p):
         """Busca un perfume en todas las tiendas, con su propio navegador (se ejecuta en paralelo)."""
         with Navegador(visible=visible, carpeta_debug=DATA / "debug") as nav:
-            return p, *buscar(p, tiendas, imp, hoy, nav, muertas)
+            return p, *buscar(p, tiendas, imp, hoy, nav, muertas, limite_ofertas)
 
     def procesar(p, filas, est):
         """Registra el resultado de un perfume. Devuelve True si encontró algún precio."""
@@ -645,7 +664,7 @@ def main():
         resultados.append((p, res, filas))
         return True
 
-    print(f"Agente perfumes v8 (navegador en paralelo x{paralelismo} + patrones de búsqueda + reintento)", flush=True)
+    print(f"Agente perfumes v9 (navegador en paralelo x{paralelismo} + patrones de búsqueda + reintento)", flush=True)
     pendientes = list(items)
     for ronda in (1, 2):  # ronda 2: solo reintenta los que se quedaron sin ningún precio
         if not pendientes:
