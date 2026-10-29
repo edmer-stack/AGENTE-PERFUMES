@@ -9,6 +9,11 @@ on:
     - cron: "45 12 * * *"  # 14:45 Madrid en horario de verano
     - cron: "45 13 * * *"  # 14:45 Madrid en horario de invierno
   workflow_dispatch:       # botón "Run workflow" para probar a mano
+    inputs:
+      sin_stealth:
+        description: "Probar SIN el disfraz anti-detección (para comparar)"
+        type: boolean
+        default: false
 permissions:
   contents: write
 concurrency:
@@ -34,6 +39,7 @@ jobs:
           FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
           PARALELISMO: "2"   # el servidor de GitHub tiene poca potencia: con 4 a la vez,
                              # algunos perfumes se quedaban sin ninguna tienda por saturación
+          SIN_STEALTH: ${{ (github.event_name == 'workflow_dispatch' && inputs.sin_stealth) && '1' || '' }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
