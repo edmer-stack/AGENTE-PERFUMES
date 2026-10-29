@@ -3,6 +3,7 @@ Navegador automático (Chromium sin ventana) para el agente de perfumes.
 Hace lo que haría una persona: abre la web, acepta cookies, escribe el perfume
 en el buscador y devuelve el HTML ya cargado (con JavaScript ejecutado).
 """
+import os
 import random
 import re
 
@@ -73,7 +74,8 @@ class Navegador:
             viewport={"width": 1366, "height": 900})
         self.ctx.set_default_timeout(20000)
         self.page = self.ctx.new_page()
-        _aplicar_stealth(self.page)
+        if not os.getenv("SIN_STEALTH"):  # para poder comparar con y sin disfraz, sin tocar código
+            _aplicar_stealth(self.page)
         return self
 
     def __exit__(self, *exc):
