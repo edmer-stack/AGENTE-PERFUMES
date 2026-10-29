@@ -12,11 +12,6 @@ paralelismo: 4            # cuántas tiendas/perfumes busca el agente A LA VEZ, 
                           # Más alto = más rápido, pero exige más memoria y CPU. 4 es un punto de
                           # equilibrio razonable tanto para un PC normal como para GitHub Actions.
                           # Si tu PC va muy lento o se cuelga, baja esto a 2.
-limite_ofertas_por_perfume: 6  # en cuanto un perfume reúne este número de precios válidos,
-                          # el agente deja de probar más tiendas para él (el informe solo
-                          # enseña las 4 mejores de todas formas). Con un catálogo grande,
-                          # esto es lo que más acelera el conjunto. Súbelo si quieres comparar
-                          # más tiendas por perfume a costa de tardar más.
 presupuesto_alternativas: 70   # € máximo (precio total) para perfumes alternativos
 min_dias_historial: 14    # por debajo de esto el agente usa "modo arranque"
 
@@ -246,18 +241,6 @@ tiendas:
 #   Ejemplo:  urls: { notino: "https://www.notino.es/rasasi/daarej-..." }
 # ------------------------------------------------------------
 perfumes:
-  - id: daarej
-    nombre: Daarej
-    marca: Rasasi
-    concentracion: EDP
-    ml: 100
-    urls: {}
-  - id: shuhrah
-    nombre: Shuhrah
-    marca: Rasasi
-    concentracion: EDP
-    ml: 90
-    urls: {}
   - id: hawas_black
     nombre: Hawas Black
     marca: Rasasi
@@ -288,6 +271,324 @@ perfumes:
     concentracion: EDP
     ml: 55
     urls: {}
+  - id: lattafa_opulent_oud
+    nombre: Opulent Oud
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: rasasi_daarej_pour_homme
+    nombre: Daarej Pour Homme
+    marca: Rasasi
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: rasasi_shuhrah_pour_homme
+    nombre: Shuhrah Pour Homme
+    marca: Rasasi
+    concentracion: EDP
+    ml: 90
+    urls: {}
+  - id: maison_alhambra_the_artist_no2
+    nombre: The Artist Nº2
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: french_avenue_sultan_the_conqueror
+    nombre: Sultan The Conqueror
+    marca: French Avenue
+    concentracion: EDP
+    ml: 80
+    urls: {}
+  - id: rayhaan_crimson
+    nombre: Crimson
+    marca: Rayhaan
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: fomo_gary_s_den_le_parfum
+    nombre: Gary's Den Le Parfum
+    marca: Fomo
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: maison_alhambra_terra
+    nombre: Terra
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 50
+    urls: {}
+  - id: maison_alhambra_dark_door_intense
+    nombre: Dark Door Intense
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: french_avenue_enigma_une
+    nombre: Enigma Une
+    marca: French Avenue
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: afnan_turathi_blue
+    nombre: Turathi Blue
+    marca: Afnan
+    concentracion: EDP
+    ml: 90
+    urls: {}
+  - id: maison_alhambra_domino_essence
+    nombre: Domino Essence
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: maison_alhambra_toro_pour_homme_glace
+    nombre: Toro Pour Homme Glace
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lalique_encre_noire_a_l_extreme
+    nombre: Encre Noire Á l'Extreme
+    marca: Lalique
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: armaf_club_de_nuit_precieux_i_extrait_de_parfum
+    nombre: Club de Nuit Precieux I Extrait de Parfum
+    marca: Armaf
+    concentracion: EDP
+    ml: 55
+    urls: {}
+  - id: lattafa_ameer_al_oudh_intense_oud
+    nombre: Ameer Al Oudh Intense Oud
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lattafa_pride_eternal_oud
+    nombre: Eternal Oud
+    marca: Lattafa Pride
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: ard_al_zaafran_midnight_oud
+    nombre: Midnight Oud
+    marca: Ard Al Zaafran
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lattafa_bade_e_al_oud_oud_for_glory
+    nombre: Bade'e Al Oud Oud for Glory
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: ralph_lauren_polo_green
+    nombre: Polo Green
+    marca: Ralph Lauren
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: paco_rabanne_paco_rabanne_pour_homme
+    nombre: Paco Rabanne Pour Homme
+    marca: Paco Rabanne
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: cacharel_cacharel_pour_homme
+    nombre: Cacharel Pour Homme
+    marca: Cacharel
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: ralph_lauren_polo_blue_parfum
+    nombre: Polo Blue Parfum
+    marca: Ralph Lauren
+    concentracion: EDP
+    ml: 75
+    urls: {}
+  - id: hermes_terre_d_hermes_eau_de_parfum_intense
+    nombre: Terre D'Hermès Eau de Parfum Intense
+    marca: Hermès
+    concentracion: EDP
+    ml: 50
+    urls: {}
+  - id: issey_miyake_l_eau_d_issey_pour_homme
+    nombre: L'Eau d'Issey Pour Homme
+    marca: Issey Miyake
+    concentracion: EDT
+    ml: 75
+    urls: {}
+  - id: sean_john_unforgivable_for_men
+    nombre: Unforgivable for Men
+    marca: Sean John
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: lanvin_lanvin_l_homme
+    nombre: Lanvin L'Homme
+    marca: Lanvin
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: rayhaan_nocturno_elixir_pour_homme
+    nombre: Nocturno Elixir Pour Homme
+    marca: Rayhaan
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: armaf_odyssey_nexus
+    nombre: Odyssey Nexus
+    marca: Armaf
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lalique_lalique_pour_homme_lion
+    nombre: Lalique Pour Homme Lion
+    marca: Lalique
+    concentracion: EDP
+    ml: 125
+    urls: {}
+  - id: khadlaj_shiyaaka_snow
+    nombre: Shiyaaka Snow
+    marca: Khadlaj
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: azzaro_chrome_for_men
+    nombre: Chrome for men
+    marca: Azzaro
+    concentracion: EDT
+    ml: 200
+    urls: {}
+  - id: halston_halston_z_14
+    nombre: Halston Z-14
+    marca: Halston
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: chanel_platinum_egoiste
+    nombre: PLATINUM ÉGOÏSTE
+    marca: CHANEL
+    concentracion: EDT
+    ml: 50
+    urls: {}
+  - id: loewe_loewe_7
+    nombre: LOEWE 7
+    marca: LOEWE
+    concentracion: EDT
+    ml: 50
+    urls: {}
+  - id: bijan_bijan_men
+    nombre: Bijan Men
+    marca: Bijan
+    concentracion: EDT
+    ml: 75
+    urls: {}
+  - id: calvin_klein_eternity_for_men
+    nombre: Eternity for Men
+    marca: Calvin Klein
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: cerruti_1881_pour_homme
+    nombre: 1881 Pour Homme
+    marca: Cerruti
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: geoffrey_beene_grey_flannel
+    nombre: Grey Flannel
+    marca: Geoffrey Beene
+    concentracion: EDT
+    ml: 120
+    urls: {}
+  - id: millennials_tonino_lamborghini
+    nombre: Tonino Lamborghini
+    marca: Millennials
+    concentracion: EDT
+    ml: 125
+    urls: {}
+  - id: harry_potter_magical_essence_man_ambition
+    nombre: Magical Essence Man Ambition
+    marca: Harry Potter
+    concentracion: EDP
+    ml: 50
+    urls: {}
+  - id: ted_lapidus_lapidus_pour_homme_black_extreme
+    nombre: Lapidus Pour Homme Black Extreme
+    marca: Ted Lapidus
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: just_jack_the_dark
+    nombre: The Dark
+    marca: Just Jack
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: ard_al_zaafaran_oud_24_hours
+    nombre: Oud 24 Hours
+    marca: Ard Al Zaafaran
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: ted_lapidus_oud_noir
+    nombre: Oud Noir
+    marca: Ted Lapidus
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: kolmaz_arabi_cana
+    nombre: Arabi Cana
+    marca: Kolmaz
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: maison_alhambra_the_trail
+    nombre: The Trail
+    marca: Maison Alhambra
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: massimo_dutti_midnight_ink
+    nombre: Midnight Ink
+    marca: Massimo Dutti
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: instituto_espanol_golden_wasser_para_hombre
+    nombre: Golden Wasser para Hombre
+    marca: Instituto Español
+    concentracion: EDT
+    ml: 150
+    urls: {}
+  - id: nikos_sculpture_homme_god_s_night
+    nombre: Sculpture Homme God's Night
+    marca: Nikos
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: nikos_sculpture_homme
+    nombre: Sculpture Homme
+    marca: Nikos
+    concentracion: EDT
+    ml: 100
+    urls: {}
+  - id: rasasi_afshan
+    nombre: Afshan
+    marca: Rasasi
+    concentracion: EDP
+    ml: 100
+    urls: {}
+  - id: lattafa_al_nashama_caprice
+    nombre: Al Nashama Caprice
+    marca: Lattafa
+    concentracion: EDP
+    ml: 100
+    urls: {}
 
 # ------------------------------------------------------------
 #  ALTERNATIVAS / CLONES — vacío a propósito.
@@ -298,3 +599,4 @@ perfumes:
 #  chat para que primero investigue si es un clon fiable).
 # ------------------------------------------------------------
 alternativas: []
+
